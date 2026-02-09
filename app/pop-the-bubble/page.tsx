@@ -111,6 +111,7 @@ export default function App() {
     );
   };
 
+  // eslint-disable-next-line react-hooks/preserve-manual-memoization
   const handlePop = useCallback((id: string, variant: string) => {
     // Determine visuals and logic based on variant
     if (variant === "rainbow") {
@@ -350,7 +351,7 @@ export default function App() {
             <div className="bg-white p-12 rounded-[3rem] border-8 border-yellow-400 text-center max-w-3xl w-full shadow-2xl animate-bounce-in">
               <div className="text-8xl mb-4">🏆</div>
               <h2 className="text-6xl font-black text-yellow-500 mb-4 drop-shadow-sm">
-                TIME'S UP!
+                TIME&apos;S UP!
               </h2>
               <div className="text-8xl font-black text-blue-600 mb-8 drop-shadow-md">
                 {score} <span className="text-4xl text-gray-400">PTS</span>

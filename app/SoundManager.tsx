@@ -37,7 +37,8 @@ export default function SoundManager({ children }: SoundManagerProps) {
       <audio ref={hoverSound} src="/hover.mp3" preload="auto" />
       <audio ref={clickSound} src="/click.mp3" preload="auto" />
       {typeof children === "function"
-        ? children({ playHover, playClick, muted, toggleMute })
+        ? // eslint-disable-next-line react-hooks/refs
+          children({ playHover, playClick, muted, toggleMute })
         : null}
     </>
   );

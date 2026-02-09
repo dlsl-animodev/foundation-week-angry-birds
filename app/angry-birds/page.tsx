@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
 "use client";
 
 import React, {
@@ -14,9 +13,21 @@ import React, {
  * Uses Web Audio API to generate pleasant, non-startling sounds
  * without requiring external file assets.
  */
-const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+let audioCtx: AudioContext | null = null;
+
+const getAudioCtx = () => {
+  if (typeof window === "undefined") return null;
+  if (!audioCtx) {
+    audioCtx = new (
+      window.AudioContext || (window as any).webkitAudioContext
+    )();
+  }
+  return audioCtx;
+};
 
 const playSound = (type) => {
+  const audioCtx = getAudioCtx();
+  if (!audioCtx) return;
   if (audioCtx.state === "suspended") audioCtx.resume();
   const osc = audioCtx.createOscillator();
   const gainNode = audioCtx.createGain();
@@ -181,6 +192,24 @@ export default function App() {
     loadLevel(levelIndex);
   }, [levelIndex]);
 
+  const resetBall = () => {
+    if (showWinScreen) return; // Don't reset if we won
+    setGameState("aiming");
+    ballVel.current = { x: 0, y: 0 };
+    ballPos.current = { ...dragStart.current };
+    setDragCurrent({ ...dragStart.current });
+  };
+
+  const handleWin = () => {
+    setGameState("won");
+    setShowWinScreen(true);
+    playSound("win");
+    // Auto next level after delay
+    setTimeout(() => {
+      setLevelIndex((prev) => prev + 1);
+    }, 3000);
+  };
+
   // Handle Resize
   useEffect(() => {
     const handleResize = () => {
@@ -234,7 +263,6 @@ export default function App() {
     return points;
   }, [isDragging, dragCurrent, dimensions]);
 
-  // Main Game Loop
   const updatePhysics = useCallback(() => {
     if (gameState === "flying") {
       let { x, y } = ballPos.current;
@@ -319,23 +347,7 @@ export default function App() {
     requestRef.current = requestAnimationFrame(updatePhysics);
   }, [gameState, dimensions, showWinScreen]);
 
-  const resetBall = () => {
-    if (showWinScreen) return; // Don't reset if we won
-    setGameState("aiming");
-    ballVel.current = { x: 0, y: 0 };
-    ballPos.current = { ...dragStart.current };
-    setDragCurrent({ ...dragStart.current });
-  };
-
-  const handleWin = () => {
-    setGameState("won");
-    setShowWinScreen(true);
-    playSound("win");
-    // Auto next level after delay
-    setTimeout(() => {
-      setLevelIndex((prev) => prev + 1);
-    }, 3000);
-  };
+  // Main Game Loop
 
   useEffect(() => {
     requestRef.current = requestAnimationFrame(updatePhysics);
